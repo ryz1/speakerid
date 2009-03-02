@@ -1,0 +1,4 @@
+Number of Gaussians=2
+Dimension of feature vectors=2
+Output filename=gmm1.dat
+Training utterances=names.txt
