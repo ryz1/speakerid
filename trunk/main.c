@@ -13,6 +13,8 @@
 #include "loadconfig.h"
 #include "loadUtterances.h"
 
+// comentatio
+
 int main(int argc, char **argv)
 {
 	struct mixture *l; // stores the elements of the GMM
