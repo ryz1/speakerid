@@ -23,7 +23,14 @@ Commited in version 5 of SVN
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
 
 4. READING TRAINING UTTERANCES FROM FILES
-	Changes must be made in all functions to allow training with multiple utterances.
-	Instead of this, firstly, the program will read all utterances and wil store them 
-	altoghether in a single variable. This should not be a big problem, since usually 
-	the gmms are trained with small amounts of data.
+	ok
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++	
+
+5. SAVE TRAINED MODEL IN FILE
+  ok
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+6. IMPLEMENT VERIFICATION SYSTEM
+
