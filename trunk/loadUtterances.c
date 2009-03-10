@@ -16,6 +16,12 @@ int loadUtterances
 	double **x;      // stores the utterances
 	int nFrames;     // total number of read frames
 	int i, frame;           // counters
+	size_t t;
+	double *temp;    // aux variable for file reading
+	
+	
+	// allocating memory
+	temp = malloc(sizeof(double)*dim);
 	
 	// Counting the total number of frames
 	nFrames = 0;
@@ -40,26 +46,30 @@ int loadUtterances
   	{
   		// Opening file for reading
   		ptr1=fopen(data,"rb");
-  		fseek (ptr1 , 0 , SEEK_END);
-        size = ftell (ptr1);
-        fclose(ptr1);
+  		if (ptr1 != NULL)
+  		{
+  			fseek (ptr1 , 0 , SEEK_END);
+        	size = ftell (ptr1);
+        	fclose(ptr1);
 
-  	    nFrames += size/12/sizeof(double);	
+  	    	nFrames += size/dim/sizeof(double);	
+  		}
   		
   		// Reading new entry from file
 		if (!feof(ptr))
+		{
 			fgets(data, 500, ptr);
-		//fscanf(ptr,"%s",data);
 		
-  		// removing control characters (\r \n) frm the end of string
-		while (data[strlen(data)-1]=='\r' || data[strlen(data)-1]=='\n')
-			data[strlen(data)-1] = '\0';
+			// removing control characters (\r \n) frm the end of string
+			while (data[strlen(data)-1]=='\r' || data[strlen(data)-1]=='\n')
+				data[strlen(data)-1] = '\0';
+		}
   	} // end of utterances file reading
   	
   	// Allocating memory
-  	x = malloc(sizeof(double *)*dim);
-  	for (i=0;i<dim;i++)
-  		x[i] = malloc(sizeof(double)*nFrames);
+  	x = malloc(sizeof(double *)*nFrames);
+  	for (i=0;i<nFrames;i++)
+  		x[i] = malloc(sizeof(double)*dim);
   	
   	// Reading utterances
   	rewind(ptr);
@@ -76,23 +86,36 @@ int loadUtterances
   	{
   		// Opening file for reading
   		ptr1=fopen(data,"rb");
-  		while(!feof(ptr1))
-  			fread(x[frame],sizeof(double),dim,ptr1);
-        fclose(ptr1);
+  		if (ptr1 != NULL)
+  		{
+  			while(!feof(ptr1))
+  			{
+  				t = fread(temp,sizeof(double),dim,ptr1);
+  				if (t == dim)
+  				{
+  					for (i=0;i<dim;i++)
+  						x[frame][i] = temp[i];
+  					frame++;
+  				}
+  			}
+        	fclose(ptr1);
+  		}
 
   		// Reading new entry from file
 		if (!feof(ptr))
+		{
 			fgets(data, 500, ptr);
-		//fscanf(ptr,"%s",data);
-		
-  		// removing control characters (\r \n) frm the end of string
-		while (data[strlen(data)-1]=='\r' || data[strlen(data)-1]=='\n')
-			data[strlen(data)-1] = '\0';
+				
+  			// removing control characters (\r \n) frm the end of string
+			while (data[strlen(data)-1]=='\r' || data[strlen(data)-1]=='\n')
+				data[strlen(data)-1] = '\0';
+		}
   	} // end of utterances file reading
-
+	fclose(ptr);
+	
 	*nFrames1 = nFrames;
 	*x1 = x;  	
-  	
-  	fclose(ptr);
+  	  	
+  	free(temp);
   	return 0;
 }

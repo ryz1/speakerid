@@ -12,8 +12,7 @@
 #include "testgmm.h"
 #include "loadconfig.h"
 #include "loadUtterances.h"
-
-// comentatio
+#include "saveGMM.h"
 
 int main(int argc, char **argv)
 {
@@ -86,10 +85,14 @@ int main(int argc, char **argv)
 	// Reading training utterances
 	loadUtterances(trainingUtterances,dim,&nFrames,&x);
 	
-	for (t=0;t<nFrames/2;t++)
-	    for(i=0;i<dim;i++)
-	        printf("%f\t",x[t][i]);
-	    puts(" ");
+	printf("Number of frames: %d\n",nFrames);
+	
+//	for (t=0;t<nFrames;t++)
+//	{
+//	    for(i=0;i<dim;i++)
+//	        printf("%f\t",x[t][i]);
+//	    puts(" ");
+//	}
 /*	
 	for (t=0;t<nFrames/2;t++)
 	{
@@ -101,7 +104,8 @@ int main(int argc, char **argv)
 		x[t][0] = normrnd(5,1);
 		x[t][1] = normrnd(7,1);
 	}
-*/		
+*/	
+	
 	// Training models
 	p_old = -INF;
 	dist = 1.0;
@@ -140,9 +144,12 @@ int main(int argc, char **argv)
 		// Updating p_old for the next training epoch
 		p_old = p_new;
 		epoch++;		
-		//showgmm(l,nGaussians,dim); 
+		showgmm(l,nGaussians,dim); 
 		
 	}
+
+	// Saving trained model
+	saveGMM(nGaussians,dim,l,GMMFilename);
 	
 	// Deallocating memory
 	for (i=0;i<nGaussians;i++)
