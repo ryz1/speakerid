@@ -8,7 +8,7 @@ void update_p
 	int nFrames,    // number of feature vectors in x
 	struct mixture *l,          // GMMs 
 	int nGaussians,  // number of Gaussians in the mixture
-	double *p;
+	double *p
 );
 
 #endif /*UPDATE_P_H_*/

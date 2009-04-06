@@ -78,6 +78,7 @@ int main(int argc, char **argv)
 		for (j=0;j<dim;j++)
 		{
 			l[i].m[j] = normrnd(1,2);
+			//l[i].m[j] = i+j;
 			l[i].s[j] = 1.0;
 		}
 	}
@@ -85,7 +86,7 @@ int main(int argc, char **argv)
 	// Reading training utterances
 	loadUtterances(trainingUtterances,dim,&nFrames,&x);
 	
-	printf("Number of frames: %d\n",nFrames);
+	//printf("Number of frames: %d\n",nFrames);
 	
 //	for (t=0;t<nFrames;t++)
 //	{
@@ -110,7 +111,7 @@ int main(int argc, char **argv)
 	p_old = -INF;
 	dist = 1.0;
 	epoch = 0;
-	while(dist > 0.001)
+	while(dist > 1e-7)
 	{
 	    // Updating mixture coefficients
 	    update_p(x,dim,nFrames,l,nGaussians,p);	
