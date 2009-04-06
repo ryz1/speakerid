@@ -17,11 +17,11 @@ int loadUtterances
 	int nFrames;     // total number of read frames
 	int i, frame;           // counters
 	size_t t;
-	double *temp;    // aux variable for file reading
+	float *temp;    // aux variable for file reading
 	
 	
 	// allocating memory
-	temp = malloc(sizeof(double)*dim);
+	temp = malloc(sizeof(float)*dim);
 	
 	// Counting the total number of frames
 	nFrames = 0;
@@ -52,7 +52,7 @@ int loadUtterances
         	size = ftell (ptr1);
         	fclose(ptr1);
 
-  	    	nFrames += size/dim/sizeof(double);	
+  	    	nFrames += size/dim/sizeof(float);	
   		}
   		
   		// Reading new entry from file
@@ -90,11 +90,11 @@ int loadUtterances
   		{
   			while(!feof(ptr1))
   			{
-  				t = fread(temp,sizeof(double),dim,ptr1);
+  				t = fread(temp,sizeof(float),dim,ptr1);
   				if (t == dim)
   				{
   					for (i=0;i<dim;i++)
-  						x[frame][i] = temp[i];
+  						x[frame][i] = (double)temp[i];
   					frame++;
   				}
   			}
