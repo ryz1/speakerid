@@ -72,9 +72,11 @@ void lbg
   calcula_centroide(&codebook2[0],n_vetores,ordem,x);
   n_vet = 1;
 
+	printf("Number of vectors: %d\n",n_vet);
   // Calculando demais codebooks
   while (n_vet < num_vet)
   {
+	
 
     // Splitting matriz codebook
 	for (i=0; i < n_vet; i++)
@@ -90,6 +92,8 @@ void lbg
 
 	// Proximo codebook
 	n_vet *= 2;
+
+	printf("Number of vectors: %d\n",n_vet);
 
     // Calculando novo codebook
     novo_codebook(&codebook2,&numero,n_vet,n_vetores,ordem,&somas,x);

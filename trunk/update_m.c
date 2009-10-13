@@ -1,6 +1,7 @@
 // Update the mixture coefficients
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "structs.h"
 #include "mixture.h"
@@ -23,10 +24,11 @@ void update_m
 	
 	// Allocating memory
 	num = malloc(sizeof(double)*dim);
-	
+		   
 	// Updating Gaussian means
     for (i=0;i<nGaussians;i++)
     {
+	//printf("gaussiana = %d\n",i);
     	den = 0.0;
     	for (j=0;j<dim;j++)
     		num[j] = 0.0;
@@ -40,8 +42,9 @@ void update_m
 	      		num[j] += aux*x[t][j];
 
     	}
+	//printf("den = %f\n",den);
     	for (j=0;j<dim;j++)
-    		m[i][j] = num[j]/den;	
+    		m[i][j] = num[j]/den;
     }
    
     // Freeing memory

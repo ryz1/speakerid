@@ -13,13 +13,14 @@
 #include "loadconfig.h"
 #include "loadUtterances.h"
 #include "saveGMM.h"
+#include "lbg.h"
 
 int main(int argc, char **argv)
 {
 	struct mixture *l; // stores the elements of the GMM
-	int nGaussians=2; // number of gaussians in the mixture
-	int nFrames=30000;    // number of frames in x
-	int dim=2;        // dimension of feature vectors
+	int nGaussians; // number of gaussians in the mixture
+	int nFrames;    // number of frames in x
+	int dim;        // dimension of feature vectors
 	int i,j,t;            // counters
 	double **x; // sequence of observation vectors
 	double *p; // aux var to store the mixture coefficients during updating p[nGaussians]
@@ -29,6 +30,7 @@ int main(int argc, char **argv)
 	double dist,p_old, p_new; // aux variables for convergence verification
 	char GMMFilename[512]; // file that will store the trained GMM
 	char trainingUtterances[512]; // file with training utterances listing
+	double **codebook; // aux var for mean initialization
 	
     // Reading arguments passed to the program
     if(argc != 2)
@@ -52,37 +54,7 @@ int main(int argc, char **argv)
 	printf("Output file: %s\n",GMMFilename);
 	printf("File with training utterances: %s\n\n",trainingUtterances);
 	
-	// Allocating memory
-	l = malloc(sizeof(struct mixture)*nGaussians);
-	for (i=0;i<nGaussians;i++)
-	{
-	  l[i].m = malloc(sizeof(double)*dim);
-	  l[i].s = malloc(sizeof(double)*dim);
-	}
-	p = malloc(sizeof(double)*dim);
-	m = malloc(sizeof(double *)*nGaussians);
-	for (i=0;i<nGaussians;i++)
-		m[i] = malloc(sizeof(double)*dim);
-	s = malloc(sizeof(double *)*nGaussians);
-	for (i=0;i<nGaussians;i++)
-		s[i] = malloc(sizeof(double)*dim);
-/*
-	x = malloc(sizeof(double *)*nFrames);
-	for (t=0;t<nFrames;t++)
-	  x[t] = malloc(sizeof(double)*dim);
-*/	
-	// Initializing variables
-	for (i=0;i<nGaussians;i++)
-	{	
-		l[i].p = 1.0/nGaussians;
-		for (j=0;j<dim;j++)
-		{
-			l[i].m[j] = normrnd(1,2);
-			//l[i].m[j] = i+j;
-			l[i].s[j] = 1.0;
-		}
-	}
-	
+
 	// Reading training utterances
 	loadUtterances(trainingUtterances,dim,&nFrames,&x);
 	
@@ -106,19 +78,67 @@ int main(int argc, char **argv)
 		x[t][1] = normrnd(7,1);
 	}
 */	
+
+	// Allocating memory for GMMs
+	l = malloc(sizeof(struct mixture)*nGaussians);
+	for (i=0;i<nGaussians;i++)
+	{
+	  l[i].m = malloc(sizeof(double)*dim);
+	  l[i].s = malloc(sizeof(double)*dim);
+	}
+	p = malloc(sizeof(double)*nGaussians);
+	m = malloc(sizeof(double *)*nGaussians);
+	for (i=0;i<nGaussians;i++)
+		m[i] = malloc(sizeof(double)*dim);
+	s = malloc(sizeof(double *)*nGaussians);
+	for (i=0;i<nGaussians;i++)
+		s[i] = malloc(sizeof(double)*dim);
+	codebook = malloc(sizeof(double)*nGaussians);
+	for (i=0;i<nGaussians;i++)
+		codebook[i] = malloc(sizeof(double)*dim);
+/*
+	x = malloc(sizeof(double *)*nFrames);
+	for (t=0;t<nFrames;t++)
+	  x[t] = malloc(sizeof(double)*dim);
+*/	
+	// Initializing gaussian weights and variances
+	for (i=0;i<nGaussians;i++)
+	{	
+		l[i].p = 1.0/nGaussians;
+		for (j=0;j<dim;j++)
+		{
+			//l[i].m[j] = normrnd(1,2);
+			//l[i].m[j] = i+j;
+			l[i].s[j] = 1.0;
+		}
+	}
 	
+	// Initializing means via Segmental K-Means
+	puts("Initializing means via Segmental K-Means");
+	lbg(&codebook,nGaussians,nFrames,dim,x);
+	for (i=0;i<nGaussians;i++)
+		for (j=0;j<dim;j++)
+			l[i].m[j] = codebook[i][j];
+
+	for (j=0;j<dim;j++)
+	{
+		for (i=0;i<nGaussians;i++)
+			printf("%f\t",codebook[i][j]);
+		puts(" ");
+	}		
+
 	// Training models
 	p_old = -INF;
 	dist = 1.0;
 	epoch = 0;
-	while(dist > 1e-7)
+	while(dist > 1e-5)
 	{
 	    // Updating mixture coefficients
 	    update_p(x,dim,nFrames,l,nGaussians,p);	
 	    
 		// Updating gaussian means
 		update_m(x,dim,nFrames,l,nGaussians,&m);
-	   
+
 	    // Updating gaussian variances
 	    update_s(x,dim,nFrames,l,nGaussians,m,&s);
 	    
@@ -169,6 +189,9 @@ int main(int argc, char **argv)
 	for (i=0;i<nGaussians;i++)
 		free(s[i]);
 	free(s);
+	for (i=0;i<nGaussians;i++)
+		free(codebook[i]);
+	free(codebook);
 		
 	return 0;
 }
