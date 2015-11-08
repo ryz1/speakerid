@@ -1,0 +1,1 @@
+A GMM based speaker recognition system for academic research.
